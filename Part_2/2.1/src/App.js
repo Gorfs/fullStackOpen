@@ -15,18 +15,15 @@ const Content = ({ parts }) => {
     </div>
   )
 }
-/*  not used for now so I commented it out
-const Total = (props) => {
+
+const Total = ({ total }) => {
   return (
     <div>
-      <h3>total number of exercises</h3>
-      {props.parts[0].exercises +
-        props.parts[1].exercises +
-        props.parts[2].exercises}
+      <h3>total number of {total} exercises</h3>
     </div>
   )
 }
-*/
+
 const Part = ({ name, exercises }) => {
   return (
     <div>
@@ -74,7 +71,19 @@ const App = () => {
     ],
   }
 
-  return <Course course={course} />
+  return (
+    <div>
+      <Course course={course} />
+      <Total
+        total={course.parts
+          .map((part) => part.exercises) //creates an array with all the values of exercises in it
+          .reduce(
+            //uses reduce to calculate the sum of all the exercises
+            (previousValue, currentValue) => previousValue + currentValue
+          )}
+      />
+    </div>
+  )
 }
 
 export default App
