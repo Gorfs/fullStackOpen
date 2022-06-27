@@ -7,13 +7,24 @@ const App = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     console.log("the submit button was pressed", event.target)
-    const personObject = {
-      name: newName,
+    //checking to see if the name already exists
+    console.log("checking if ", event.target.value, " is in the array")
+    if (
+      persons.map((person) => person.name).indexOf(event.target.value) === -1
+    ) {
+      console.log(
+        "Name already in the Array, please dont use the same name again!"
+      )
+      alert("Name is already in the array!")
+    } else {
+      const personObject = {
+        name: newName,
+      }
+      setPersons(persons.concat(personObject))
+      setNewName("")
+      console.log("pushed a new person into the list")
+      console.log("set the newName to nothing")
     }
-    setPersons(persons.concat(personObject))
-    setNewName("")
-    console.log("pushed a new person into the list")
-    console.log("set the newName to nothing")
   }
 
   const handleChange = (event) => {
