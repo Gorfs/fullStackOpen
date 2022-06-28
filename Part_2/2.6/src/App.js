@@ -1,4 +1,8 @@
 import { useState } from "react"
+import SearchBar from "./components/SearchBar"
+import AddSection from "./components/AddSection"
+import Numbers from "./components/Numbers"
+import Details from "./components/Details"
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -49,56 +53,32 @@ const App = () => {
     if (filter === "") {
       // no filter
       return persons.map((person) => (
-        <li key={person.name}>
-          {person.name} {person.number}
-        </li>
+        <Details key={person.id} person={person} />
       ))
     } else {
       // there is a filter
       return persons.map((person) =>
         person.name.toLowerCase().startsWith(filter.toLowerCase()) ? (
-          <div key={person.name}>
-            <li>
-              {" "}
-              {person.name} {person.number}
-            </li>
-          </div>
+          <Details key={person.id} person={person} />
         ) : (
           <div display="None" key={person.name}></div>
         )
       )
     }
   }
+  //running the function to get it to work
+  let PeopleShow = peopleToShow()
 
   return (
     <div>
       <h2>Phonebook</h2>
-      {/* here is where I am going to put the seach options */}
-      <div>
-        filter shown with <input value={filter} onChange={handleChange} />
-      </div>
-      <div>
-        <h2>Add a new</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            name:
-            <input value={newInfo.name} name="name" onChange={handleChange} />
-          </div>
-          <div>
-            number:
-            <input
-              name="number"
-              value={newInfo.number}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <button type="submit">add</button>
-          </div>
-        </form>
-      </div>
-      <h2>Numbers</h2>
-      <ul>{peopleToShow()}</ul>
+      <SearchBar filter={filter} handleChange={handleChange} />
+      <AddSection
+        handleSubmit={handleSubmit}
+        newInfo={newInfo}
+        handleChange={handleChange}
+      />
+      <Numbers people={PeopleShow} />
     </div>
   )
 }
