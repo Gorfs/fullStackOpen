@@ -2,9 +2,13 @@ import { useState } from "react"
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456" },
+    { name: "Arto Hellas", number: "040-123456", id: 1 },
+    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
+    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
+    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
   ])
   const [newInfo, setNewInfo] = useState({ name: "", number: "" })
+  const [filter, setFilter] = useState("")
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -32,36 +36,69 @@ const App = () => {
     if (event.target.name === "name") {
       console.log("changing the name")
       setNewInfo({ name: event.target.value, number: newInfo.number })
-    } else {
+    } else if (event.target.name === "number") {
       console.log("changing the number")
       setNewInfo({ name: newInfo.name, number: event.target.value })
+    } else {
+      //handle the filtering
+      console.log("changing the filter")
+      setFilter(event.target.value)
+    }
+  }
+  const peopleToShow = () => {
+    if (filter === "") {
+      // no filter
+      return persons.map((person) => (
+        <li key={person.name}>
+          {person.name} {person.number}
+        </li>
+      ))
+    } else {
+      // there is a filter
+      return persons.map((person) =>
+        person.name.toLowerCase().startsWith(filter.toLowerCase()) ? (
+          <div key={person.name}>
+            <li>
+              {" "}
+              {person.name} {person.number}
+            </li>
+          </div>
+        ) : (
+          <div display="None" key={person.name}></div>
+        )
+      )
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name:{" "}
-          <input value={newInfo.name} name="name" onChange={handleChange} />
-        </div>
-        <div>
-          number:{" "}
-          <input name="number" value={newInfo.number} onChange={handleChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      {/* here is where I am going to put the seach options */}
+      <div>
+        filter shown with <input value={filter} onChange={handleChange} />
+      </div>
+      <div>
+        <h2>Add a new</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            name:
+            <input value={newInfo.name} name="name" onChange={handleChange} />
+          </div>
+          <div>
+            number:
+            <input
+              name="number"
+              value={newInfo.number}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <button type="submit">add</button>
+          </div>
+        </form>
+      </div>
       <h2>Numbers</h2>
-      <ul>
-        {persons.map((person) => (
-          <li key={person.name}>
-            {person.name} {person.number}
-          </li>
-        ))}
-      </ul>
+      <ul>{peopleToShow()}</ul>
     </div>
   )
 }
