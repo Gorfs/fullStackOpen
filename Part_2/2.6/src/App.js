@@ -1,18 +1,25 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import SearchBar from "./components/SearchBar"
 import AddSection from "./components/AddSection"
 import Numbers from "./components/Numbers"
 import Details from "./components/Details"
+import axios from "axios"
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ])
+  const [persons, setPersons] = useState([])
   const [newInfo, setNewInfo] = useState({ name: "", number: "" })
   const [filter, setFilter] = useState("")
+
+  //function that fetches data from the db file
+  const hook = () => {
+    console.log("effect")
+    axios.get("http://localhost:3001/persons").then((response) => {
+      console.log("promise fufilled")
+      setPersons(response.data)
+    })
+  }
+
+  useEffect(hook, [])
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -49,6 +56,8 @@ const App = () => {
       setFilter(event.target.value)
     }
   }
+
+  //function that returns a tons of Detail components of the people that have not been filtered
   const peopleToShow = () => {
     if (filter === "") {
       // no filter
