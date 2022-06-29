@@ -1,4 +1,6 @@
-const country = ({ country, details }) => {
+import Weather from "./Weather"
+
+const country = ({ country, details, API }) => {
   if (details === false) {
     return <div>{country.name.common}</div>
   } else {
@@ -14,6 +16,7 @@ const country = ({ country, details }) => {
           ))}
         </ul>
         <img src={country.flags.png} alt="flag of {country.name.common}" />
+        <Weather country={country} API={API} />
       </div>
     )
   }

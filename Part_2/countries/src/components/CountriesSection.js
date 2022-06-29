@@ -1,8 +1,9 @@
 import Country from "./Country"
 import Button from "./Button"
+
 import { useEffect, useState } from "react"
 
-const CountriesSection = ({ countries }) => {
+const CountriesSection = ({ countries, API }) => {
   const [name, setName] = useState("")
   //the showCountries is an array of objets called the name of the country and a value of showCountry boolean
   const [showCountries, setShowCountries] = useState(
@@ -53,7 +54,7 @@ const CountriesSection = ({ countries }) => {
     console.log(name, "we are at the countries section part of the voyage")
     return (
       <div>
-        <Country country={countries[0]} details={true} />
+        <Country country={countries[0]} details={true} API={API} />
       </div>
     )
   } else if (countries.length < 10) {
@@ -61,9 +62,9 @@ const CountriesSection = ({ countries }) => {
     return (
       <div>
         {countries.map((country, i) => (
-          <div>
+          <div key={country.name.common}>
             <Country
-              key={country.name.common}
+              API={API}
               country={country}
               details={
                 showCountries.length > 0
@@ -73,7 +74,6 @@ const CountriesSection = ({ countries }) => {
                   : false
               }
             />
-
             <Button
               name={country.name.common}
               text={

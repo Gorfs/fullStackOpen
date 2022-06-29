@@ -21,6 +21,8 @@ const App = () => {
     })
   }, [])
 
+  const API_KEY = process.env.REACT_APP_KEY
+
   const handleChange = (event) => {
     console.log("updating the countries")
     updateCountries(event.target.value)
@@ -46,8 +48,9 @@ const App = () => {
   return (
     <div>
       <MainHeader />
+      <div>please type really slowly of the app will break</div>
       <SearchBar onChange={handleChange} value={filter} />
-      <CountriesSection countries={filteredCountries} />
+      <CountriesSection API={API_KEY} countries={filteredCountries} />
     </div>
   )
 }
