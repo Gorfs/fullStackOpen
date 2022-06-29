@@ -27,7 +27,7 @@ const Weather = ({ country, API }) => {
         <p>temperature is {data.current.temperature} degrees celcius </p>
         <img src={data.current.weather_icons[0]} alt="icon showing weather" />
         <p> It is {data.current.weather_descriptions[0]}</p>
-        <p>UV index is {data.current.uk_index}</p>
+        <p>UV index is {data.current.uv_index}</p>
       </div>
     )
   } else {

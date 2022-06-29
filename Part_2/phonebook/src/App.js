@@ -2,8 +2,7 @@ import { useState, useEffect } from "react"
 import SearchBar from "./components/SearchBar"
 import AddSection from "./components/AddSection"
 import Numbers from "./components/Numbers"
-import Details from "./components/Details"
-import axios from "axios"
+import personService from "./services/numbers"
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -13,15 +12,36 @@ const App = () => {
   //function that fetches data from the db file
   const hook = () => {
     console.log("effect")
-    axios.get("http://localhost:3001/persons").then((response) => {
-      console.log("promise fufilled")
-      setPersons(response.data)
-    })
+    personService.getAll().then((people) => setPersons(people))
+  }
+
+  const handleDelete = (event) => {
+    if (window.confirm(`Delete ${event.target.name}`)) {
+      console.log("Deleting the person with the ID ", event.target.id)
+      console.log(
+        "list should be after ",
+        persons.filter((person) => person.name !== event.target.name)
+      )
+      personService
+        .deletePerson(event.target.id)
+        .then((people) =>
+          setPersons(
+            persons.filter((person) => person.name !== event.target.name)
+          )
+        )
+      console.log("AFTER DELETE PEOPLE ARE ", persons)
+    } else {
+      console.log("cancelling the deletion")
+    }
   }
 
   useEffect(hook, [])
 
   const handleSubmit = (event) => {
+    const personObject = {
+      name: newInfo.name,
+      number: newInfo.number,
+    }
     event.preventDefault()
     console.log("the submit button was pressed!")
     //checking to see if the name already exists
@@ -30,16 +50,35 @@ const App = () => {
       console.log(
         "Name already in the Array, please dont use the same name again!"
       )
-      alert("Name is already in the array!")
+      if (
+        window.confirm(
+          ` ${newInfo.name} is already in the arr, do you want to update his phone number?`
+        )
+      ) {
+        personService.updatePerson(
+          persons.find((person) => person.name === personObject.name).id,
+          personObject
+        )
+        setPersons(
+          persons.map((person) =>
+            person.name === newInfo.name ? personObject : person
+          )
+        )
+      } else {
+        console.log("canceling the update")
+      }
     } else {
       const personObject = {
         name: newInfo.name,
         number: newInfo.number,
       }
-      setPersons(persons.concat(personObject))
+      personService
+        .addPerson(personObject)
+        .then((person) => setPersons(persons.concat(person)))
       setNewInfo({ name: "", number: "" })
       console.log("pushed a new person into the list")
       console.log("set the newName to nothing")
+      console.log(persons)
     }
   }
 
@@ -61,22 +100,18 @@ const App = () => {
   const peopleToShow = () => {
     if (filter === "") {
       // no filter
-      return persons.map((person) => (
-        <Details key={person.id} person={person} />
-      ))
+      return persons
     } else {
       // there is a filter
-      return persons.map((person) =>
-        person.name.toLowerCase().startsWith(filter.toLowerCase()) ? (
-          <Details key={person.id} person={person} />
-        ) : (
-          <div display="None" key={person.name}></div>
-        )
+      return persons.filter((person) =>
+        person.name.toLowerCase().startsWith(filter.toLowerCase())
       )
     }
   }
+
   //running the function to get it to work
   let PeopleShow = peopleToShow()
+  console.log("people to show are ", PeopleShow, " with filter ", filter)
 
   return (
     <div>
@@ -87,7 +122,11 @@ const App = () => {
         newInfo={newInfo}
         handleChange={handleChange}
       />
-      <Numbers people={PeopleShow} />
+      <Numbers
+        handleDelete={handleDelete}
+        key={peopleToShow}
+        people={PeopleShow}
+      />
     </div>
   )
 }

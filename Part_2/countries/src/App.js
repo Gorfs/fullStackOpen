@@ -48,7 +48,6 @@ const App = () => {
   return (
     <div>
       <MainHeader />
-      <div>please type really slowly of the app will break</div>
       <SearchBar onChange={handleChange} value={filter} />
       <CountriesSection API={API_KEY} countries={filteredCountries} />
     </div>
