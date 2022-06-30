@@ -6,14 +6,20 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build:ui": "rm -rf build && cd ../../Part_2/notes && npm run build && cp -r build ../.../Part_3/server",
+    "deploy": "git push heroku main",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
+    "logs:prod": "heroku logs --tail"
   },
   "author": "Archie Beales",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.18"
-  }
+  },
+  "proxy": "http://localhost:3001"
 }

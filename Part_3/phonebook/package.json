@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build:ui": "rm -rf build && cd ../../Part_2/phonebook && npm run build && cp -r build ../../Part_3/phonebook",
+    "deploy": "git add . && git commit -m updatedbuild && git push heroku main",
+    "deploy:full": "npm run build:ui && npm run deploy",
+    "logs:prod": "heroku logs --tail"
   },
   "author": "Archie Beales",
   "license": "ISC",
@@ -16,5 +20,6 @@
   "dependencies": {
     "express": "^4.18.1",
     "morgan": "^1.10.0"
-  }
+  },
+  "proxy": "http://localhost:3001"
 }

@@ -1,9 +1,11 @@
 const express = require("express")
+const cors = require("cors")
 const app = express()
 
 app.use(express.json())
-app.use(requestLogger())
-app.use(unknownEndpoint())
+app.use(express.static("build"))
+
+app.use(cors())
 
 let notes = [
   {
@@ -24,19 +26,13 @@ let notes = [
     date: "2022-05-30T19:20:14.298Z",
     important: true,
   },
+  {
+    id: 4,
+    content: "Archie is soo cool",
+    date: "2022-05-30T19:20:14.298Z",
+    important: true,
+  },
 ]
-
-const requestLogger = (request, response, text) => {
-  console.log("Method:", request.method)
-  console.log("Path:", requets.path)
-  console.log("Body:", request.body)
-  console.log("---")
-  next()
-}
-
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unkown endpoint" })
-}
 
 const generateId = () => {
   const maxId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) : 0
@@ -44,9 +40,7 @@ const generateId = () => {
 }
 
 app.get("/", (request, response) => {
-  response.send(
-    "<h1>Hello Archie !</h1> <p> I am happy to see you today, it is a fine day </p>"
-  )
+  response.send("<p> This is the backend server API giving you this page </p>")
 })
 
 app.get("/api/notes", (request, response) => {
@@ -85,13 +79,42 @@ app.post("/api/notes", (request, response) => {
   response.json(note)
 })
 
-app.delete("api/notes/:id", (request, response) => {
+app.delete("/api/notes/:id", (request, response) => {
   const id = Number(request.params.id)
   notes = notes.filter((note) => note.id !== id)
 
   response.status(204).end()
 })
 
-const PORT = 3001
+app.put("/api/notes/:id", (request, response) => {
+  const newObject = request.body
+  console.log(
+    "request to change note with ID:",
+    request.params.id,
+    " with ",
+    newObject.important
+  )
+
+  if (!notes.find((n) => n.id === Number(request.params.id))) {
+    console.log("request to change note denied, ID not match")
+    response.status(404).end()
+    return null
+  }
+
+  console.log("request to change not granted, ID match")
+  const newNotes = notes.map((note) => {
+    if (note.id == Number(request.params.id)) {
+      return newObject
+    } else {
+      return note
+    }
+  })
+  notes = newNotes
+  console.log("notes have been updated to ", notes)
+
+  response.json(notes)
+})
+
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`server running on port ${PORT}`)

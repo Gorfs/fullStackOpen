@@ -3,6 +3,7 @@ const app = express()
 const morgan = require("morgan")
 
 app.use(express.json())
+app.use(express.static("./build"))
 app.use(
   morgan(function (tokens, req, res) {
     if (req.method === "POST") {
@@ -124,6 +125,6 @@ app.post("/api/persons", (request, response) => {
   response.json(persons)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`App is listening on ${PORT} `)
