@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react"
+
 import SearchBar from "./components/SearchBar"
 import AddSection from "./components/AddSection"
 import Numbers from "./components/Numbers"
 import personService from "./services/numbers"
+import Notification from "./components/Notification"
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newInfo, setNewInfo] = useState({ name: "", number: "" })
   const [filter, setFilter] = useState("")
+  const [notification, setNotification] = useState(null)
 
   //function that fetches data from the db file
   const hook = () => {
@@ -29,9 +32,22 @@ const App = () => {
             persons.filter((person) => person.name !== event.target.name)
           )
         )
-      console.log("AFTER DELETE PEOPLE ARE ", persons)
+      setNotification({
+        message: `Deleted ${event.target.name} from the list`,
+        color: "green",
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 10000)
     } else {
       console.log("cancelling the deletion")
+      setNotification({
+        message: `Cancelling the delete`,
+        color: "red",
+      })
+      setTimeout(() => {
+        setNotification(null)
+      }, 10000)
     }
   }
 
@@ -47,25 +63,39 @@ const App = () => {
     //checking to see if the name already exists
     console.log("checking if ", newInfo.name, " is in the array")
     if (persons.map((person) => person.name).indexOf(newInfo.name) !== -1) {
-      console.log(
-        "Name already in the Array, please dont use the same name again!"
-      )
       if (
         window.confirm(
           ` ${newInfo.name} is already in the arr, do you want to update his phone number?`
         )
       ) {
-        personService.updatePerson(
-          persons.find((person) => person.name === personObject.name).id,
-          personObject
-        )
+        personService
+          .updatePerson(
+            persons.find((person) => person.name === personObject.name).id,
+            personObject
+          )
+          .then((response) => console.log(response.data))
+          .catch((error) => {
+            console.log("there was an error")
+            setNotification({
+              message: `name seems to be gone from the database | ${error}`,
+              color: "red",
+            })
+            setTimeout(() => setNotification(null), 10000)
+          })
         setPersons(
           persons.map((person) =>
             person.name === newInfo.name ? personObject : person
           )
         )
+        setNotification({
+          message: `updated information for ${personObject.name}`,
+          color: "green",
+        })
+        setTimeout(() => setNotification(null), 10000)
       } else {
         console.log("canceling the update")
+        setNotification({ message: `canceled the update`, color: "red" })
+        setTimeout(() => setNotification(null), 5000)
       }
     } else {
       const personObject = {
@@ -75,6 +105,11 @@ const App = () => {
       personService
         .addPerson(personObject)
         .then((person) => setPersons(persons.concat(person)))
+      setNotification({
+        message: `Added information for ${personObject.name}`,
+        color: "green",
+      })
+      setTimeout(() => setNotification(null), 10000)
       setNewInfo({ name: "", number: "" })
       console.log("pushed a new person into the list")
       console.log("set the newName to nothing")
@@ -113,9 +148,11 @@ const App = () => {
   let PeopleShow = peopleToShow()
   console.log("people to show are ", PeopleShow, " with filter ", filter)
 
+  console.log("current notification is ", notification)
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <SearchBar filter={filter} handleChange={handleChange} />
       <AddSection
         handleSubmit={handleSubmit}

@@ -1,12 +1,19 @@
 import Note from "./components/Note"
 import { useEffect, useState } from "react"
-import axios from "axios"
 import noteService from "./services/notes"
+import Notification from "./components/Notification"
+import Footer from "./components/Footer"
+
+import "./index.css"
 
 const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState("")
   const [showAll, setShowAll] = useState(true)
+  const [errorMessage, setErrorMessage] = useState({
+    message: "",
+    color: "green",
+  })
 
   useEffect(() => {
     noteService.getAll().then((notes) => {
@@ -25,7 +32,13 @@ const App = () => {
         setNotes(notes.map((note) => (note.id !== id ? note : returnedNote)))
       })
       .catch((error) => {
-        alert(`the note ${note} is not in the server anymore`)
+        setErrorMessage({
+          message: ` the note ${note} no longer exists | error = ${error}`,
+          color: "red",
+        })
+        setTimeout(() => {
+          setErrorMessage({ message: "", color: "" })
+        }, 5000)
         setNotes(notes.filter((n) => n.id !== id))
       })
   }
@@ -44,6 +57,8 @@ const App = () => {
     noteService.create(noteObject).then((note) => {
       setNotes(notes.concat(note))
       setNewNote("")
+      setErrorMessage({ message: `added ${note.content}`, color: "green" })
+      setTimeout(() => setErrorMessage({ message: "", color: "" }), 5000)
     })
   }
 
@@ -51,6 +66,7 @@ const App = () => {
   return (
     <div>
       <h1>Notes</h1>
+      <Notification message={errorMessage.message} color={errorMessage.color} />
       <div>
         <button onClick={() => setShowAll(!showAll)}>
           show {showAll ? "important" : "all"}
@@ -69,6 +85,7 @@ const App = () => {
         <input value={newNote} onChange={handleNoteChange} />
         <button type="submit"> save </button>
       </form>
+      <Footer />
     </div>
   )
 }
