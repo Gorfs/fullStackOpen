@@ -1,10 +1,22 @@
+require("dotenv").config()
 const express = require("express")
+const PORT = process.env.PORT
 const cors = require("cors")
 const app = express()
 
-app.use(express.json())
-app.use(express.static("build"))
+const Note = require("./models/note")
 
+const requestLogger = (request, response, next) => {
+  console.log("Method:", request.method)
+  console.log("Path:  ", request.path)
+  console.log("Body:  ", request.body)
+  console.log("---")
+  next()
+}
+
+app.use(express.static("build"))
+app.use(express.json())
+app.use(requestLogger)
 app.use(cors())
 
 let notes = [
@@ -34,31 +46,30 @@ let notes = [
   },
 ]
 
-const generateId = () => {
-  const maxId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) : 0
-  return maxId + 1
-}
-
 app.get("/", (request, response) => {
   response.send("<p> This is the backend server API giving you this page </p>")
 })
 
 app.get("/api/notes", (request, response) => {
-  response.json(notes)
+  Note.find({}).then((notes) => {
+    response.json(notes)
+  })
 })
 
-app.get("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id)
-  const note = notes.find((note) => note.id === id)
-
-  if (note) {
-    response.json(note)
-  } else {
-    response.status(404).end()
-  }
+app.get("/api/notes/:id", (request, response, next) => {
+  const id = request.params.id
+  Note.findById(id)
+    .then((note) => {
+      if (note) {
+        response.json(note)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch((err) => next(err))
 })
 
-app.post("/api/notes", (request, response) => {
+app.post("/api/notes", (request, response, next) => {
   const body = request.body
 
   if (!body.content) {
@@ -67,54 +78,59 @@ app.post("/api/notes", (request, response) => {
     })
   }
 
-  const note = {
+  const note = new Note({
     content: body.content,
     important: body.important || false,
     date: new Date(),
-    id: generateId(),
-  }
+  })
 
-  notes = notes.concat(note)
-
-  response.json(note)
+  note
+    .save()
+    .then((savedNote) => {
+      response.json(savedNote)
+    })
+    .catch((err) => next(err))
 })
 
-app.delete("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id)
-  notes = notes.filter((note) => note.id !== id)
+app.delete("/api/notes/:id", (request, response, next) => {
+  Note.findByIdAndRemove(request.params.id)
+    .then((result) => {
+      response.status(204).end()
+    })
+    .catch((err) => {
+      next(err)
+    })
 
   response.status(204).end()
 })
 
-app.put("/api/notes/:id", (request, response) => {
-  const newObject = request.body
-  console.log(
-    "request to change note with ID:",
+app.put("/api/notes/:id", (request, response, next) => {
+  const { content, important } = request.body
+
+  Note.findByIdAndUpdate(
     request.params.id,
-    " with ",
-    newObject.important
+    { content, important },
+    { new: true, runValidators: true, context: "query" }
   )
-
-  if (!notes.find((n) => n.id === Number(request.params.id))) {
-    console.log("request to change note denied, ID not match")
-    response.status(404).end()
-    return null
-  }
-
-  console.log("request to change not granted, ID match")
-  const newNotes = notes.map((note) => {
-    if (note.id == Number(request.params.id)) {
-      return newObject
-    } else {
-      return note
-    }
-  })
-  notes = newNotes
-  console.log("notes have been updated to ", notes)
-
-  response.json(notes)
+    .then((updatedNote) => {
+      response.json(updatedNote)
+    })
+    .catch((err) => next(err))
 })
 
-const PORT = process.env.PORT || 3001
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message)
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformed id" })
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message })
+  }
+  next(error)
+}
+
+// HAS TO BE THE LAST LOADED MIDDLEWARE
+app.use(errorHandler)
+
 app.listen(PORT)
 console.log(`server running on port ${PORT}`)
