@@ -12,33 +12,39 @@ const CountriesSection = ({ countries, API }) => {
     )
   )
   console.log("countries to be shown are pizzazely ", countries)
-  const updateCountries = (name) => {
+  const updateCountries = (name, details) => {
     let tempArr = []
     for (let i = 0; i < countries.length; i++) {
+      console.log("looking at ", showCountries[i])
       if (countries[i].name.common === name) {
-        tempArr.push({ name: countries[i].name.common, details: true })
+        tempArr.push({ name: name, details: details })
+      } else if (
+        showCountries.find(
+          (country) => country.name === countries[i].name.common
+        )
+      ) {
+        tempArr.push({
+          name: showCountries[i].name,
+          details: showCountries[i].details,
+        })
       } else {
-        tempArr.push({ name: countries[i].name.common, details: false })
+        tempArr.push({
+          name: countries[i].name.common,
+          details: false,
+        })
       }
-      console.log(tempArr, "is the temp arr and the name is ", name)
-      setShowCountries(tempArr)
     }
-  }
-  const rstCountries = () => {
-    setShowCountries(
-      countries.map(
-        (country) => (country = { name: country.name.common, details: false })
-      )
-    )
+    console.log(tempArr, "is the temp arr and the name is ", name)
+    setShowCountries(tempArr)
   }
 
   const handleClick = (event) => {
     console.log("handeling a click from ", event.target.innerText)
     console.log(event.target.id)
     if (event.target.innerText === "hide") {
-      rstCountries()
+      updateCountries(event.target.id, false)
     } else {
-      updateCountries(event.target.id)
+      updateCountries(event.target.id, true)
     }
   }
   //updateCountries("")

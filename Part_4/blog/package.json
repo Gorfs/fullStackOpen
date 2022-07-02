@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "nodemon": "^2.0.18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jest": "^28.1.2",
+    "mongoose": "^6.4.2"
+  },
+  "name": "blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --verbose",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "Archie Beales",
+  "license": "ISC",
+  "description": "",
+  "proxy": "http://localhost:3003",
+  "jest": {
+    "testEnvironment": "node"
+  }
+}

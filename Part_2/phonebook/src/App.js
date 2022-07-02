@@ -54,6 +54,7 @@ const App = () => {
   useEffect(hook, [])
 
   const handleSubmit = (event) => {
+    console.log("FROM HANDLESUBMIT | START OF FUCNTION | persons = ", persons)
     const personObject = {
       name: newInfo.name,
       number: newInfo.number,
@@ -68,6 +69,10 @@ const App = () => {
           ` ${newInfo.name} is already in the arr, do you want to update his phone number?`
         )
       ) {
+        console.log(
+          "person who they are looking for is ",
+          persons.find((person) => person.name === personObject.name).id
+        )
         personService
           .updatePerson(
             persons.find((person) => person.name === personObject.name).id,
@@ -98,22 +103,44 @@ const App = () => {
         setTimeout(() => setNotification(null), 5000)
       }
     } else {
+      console.log(
+        "FROM HANDLESUBMIT | person does not exist in the array | persons = ",
+        persons
+      )
       const personObject = {
         name: newInfo.name,
         number: newInfo.number,
       }
       personService
         .addPerson(personObject)
-        .then((person) => setPersons(persons.concat(person)))
-      setNotification({
-        message: `Added information for ${personObject.name}`,
-        color: "green",
-      })
-      setTimeout(() => setNotification(null), 10000)
-      setNewInfo({ name: "", number: "" })
-      console.log("pushed a new person into the list")
-      console.log("set the newName to nothing")
-      console.log(persons)
+        .then((person) => {
+          const tempArr = persons.concat(person)
+          console.log(
+            "FROM HANDLE SUBMIT | pushing persons to persons array | persons =",
+            persons,
+            "new proposition = ",
+            tempArr
+          )
+          setNotification({
+            message: `Added information for ${personObject.name}`,
+            color: "green",
+          })
+          setTimeout(() => setNotification(null), 10000)
+          setNewInfo({ name: "", number: "" })
+          console.log("pushed a new person into the list")
+          console.log("set the newName to nothing")
+          console.log(persons)
+
+          setPersons(tempArr)
+        })
+        .catch((err) => {
+          console.log("error is ", err.response.data)
+          setNotification({
+            message: err.response.data.error.message,
+            color: "red",
+          })
+          setTimeout(() => setNotification(null), 10000)
+        })
     }
   }
 
@@ -135,9 +162,11 @@ const App = () => {
   const peopleToShow = () => {
     if (filter === "") {
       // no filter
+      console.log("FROM peopleToShow | persons=", persons)
       return persons
     } else {
       // there is a filter
+      console.log("FROM peopleToShow | persons=", persons)
       return persons.filter((person) =>
         person.name.toLowerCase().startsWith(filter.toLowerCase())
       )
@@ -146,7 +175,14 @@ const App = () => {
 
   //running the function to get it to work
   let PeopleShow = peopleToShow()
-  console.log("people to show are ", PeopleShow, " with filter ", filter)
+  console.log(
+    "people to show are ",
+    peopleToShow(),
+    " with filter ",
+    filter,
+    " from the main list which is ",
+    persons
+  )
 
   console.log("current notification is ", notification)
   return (
