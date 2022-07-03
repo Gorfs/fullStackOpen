@@ -32,8 +32,6 @@ const mostBlogs = (blogs) => {
   //making an object that contains the name of all the authors and the total number of blogs each one has written
   let blogAuthors = []
   blogs.map((blog) => {
-    logger.info(blogAuthors, blog.author)
-    logger.info(blogAuthors.find((author) => author.name === blog.author))
     if (
       blogAuthors.find((author) => author.name === blog.author) != undefined
     ) {
@@ -66,8 +64,6 @@ const mostLikes = (blogs) => {
   //making an object that contains the name of all the authors and the total number of blogs each one has written
   let blogAuthors = []
   blogs.map((blog) => {
-    logger.info(blogAuthors, blog.author)
-    logger.info(blogAuthors.find((author) => author.name === blog.author))
     if (
       blogAuthors.find((author) => author.name === blog.author) != undefined
     ) {

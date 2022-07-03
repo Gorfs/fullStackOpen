@@ -87,15 +87,45 @@ test("if no url or title then responds with code 400 bad request", async () => {
 describe("deleting objects", () => {
   test("delete an object with a valid id", async () => {
     const blogsAtStart = await api.get("/api/blogs")
-    const noteId = blogsAtStart.body[0].id
+    const noteId = blogsAtStart.body[0]
 
-    await api.delete(`/api/blogs/${noteId}`).expect(204)
+    await api.delete(`/api/blogs/${noteId.id}`).expect(204)
 
     const blogsAtEnd = await api.get("/api/blogs")
-    expect(blogsAtEnd.length + 1).toHaveLength(blogsAtStart.length)
+    expect(blogsAtEnd.body).toHaveLength(blogsAtStart.body.length - 1)
   })
 
   test("attempt delete with bad ID", async () => {
     await api.delete(`/api/blogs/3`).expect(400)
+  })
+})
+
+describe("editing objects in the DB", () => {
+  test("updating an object with correct ID", async () => {
+    const response = await api.get("/api/blogs")
+
+    const ID = response.body[0].id
+    const newObject = {
+      title: response.body[0].title,
+      author: "Thomas francois",
+      url: response.body[0].url,
+      likes: response.body[0].likes,
+    }
+    await api
+      .put(`/api/blogs/${ID}`)
+      .send(newObject)
+      .expect(200)
+      .expect("Content-Type", /application\/json/)
+  })
+
+  test("updating an object with incorect ID", async () => {
+    const ID = 15
+    const newObject = {
+      title: "thomasas thing",
+      author: "Thomas francois",
+      url: "some url",
+      likes: 24,
+    }
+    await api.put(`/api/blogs/${ID}`).send(newObject).expect(400)
   })
 })
