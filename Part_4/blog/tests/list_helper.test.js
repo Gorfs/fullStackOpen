@@ -1,5 +1,6 @@
 const listHelper = require("../utils/list_helper")
 const logger = require("../utils/logger")
+const supertest = require("supertest")
 
 test("dummy returns one", () => {
   const blogs = []

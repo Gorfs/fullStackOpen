@@ -1,3 +1,5 @@
+const logger = require("./logger")
+
 const dummy = (blogs) => {
   return 1
 }
@@ -30,8 +32,8 @@ const mostBlogs = (blogs) => {
   //making an object that contains the name of all the authors and the total number of blogs each one has written
   let blogAuthors = []
   blogs.map((blog) => {
-    console.log(blogAuthors, blog.author)
-    console.log(blogAuthors.find((author) => author.name === blog.author))
+    logger.info(blogAuthors, blog.author)
+    logger.info(blogAuthors.find((author) => author.name === blog.author))
     if (
       blogAuthors.find((author) => author.name === blog.author) != undefined
     ) {
@@ -45,7 +47,7 @@ const mostBlogs = (blogs) => {
       }) //initialising the value for the author
     }
   })
-  console.log("authors are ", blogAuthors)
+  logger.info("authors are ", blogAuthors)
   let max_author = blogAuthors[0]
 
   blogAuthors.map((author) => {
@@ -64,8 +66,8 @@ const mostLikes = (blogs) => {
   //making an object that contains the name of all the authors and the total number of blogs each one has written
   let blogAuthors = []
   blogs.map((blog) => {
-    console.log(blogAuthors, blog.author)
-    console.log(blogAuthors.find((author) => author.name === blog.author))
+    logger.info(blogAuthors, blog.author)
+    logger.info(blogAuthors.find((author) => author.name === blog.author))
     if (
       blogAuthors.find((author) => author.name === blog.author) != undefined
     ) {
@@ -80,7 +82,7 @@ const mostLikes = (blogs) => {
       }) //initialising the value for the author
     }
   })
-  console.log("authors are ", blogAuthors)
+  logger.info("authors are ", blogAuthors)
   let max_author = blogAuthors[0]
 
   blogAuthors.map((author) => {

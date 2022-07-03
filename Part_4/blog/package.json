@@ -7,15 +7,16 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "jest": "^28.1.2",
-    "mongoose": "^6.4.2"
+    "mongoose": "^6.4.2",
+    "supertest": "^6.2.4"
   },
   "name": "blog",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "NODE_ENV=production node index.js"
   },
   "author": "Archie Beales",
   "license": "ISC",
