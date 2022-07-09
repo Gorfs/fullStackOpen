@@ -45,7 +45,7 @@ const mostBlogs = (blogs) => {
       }) //initialising the value for the author
     }
   })
-  logger.info("authors are ", blogAuthors)
+
   let max_author = blogAuthors[0]
 
   blogAuthors.map((author) => {
@@ -78,7 +78,6 @@ const mostLikes = (blogs) => {
       }) //initialising the value for the author
     }
   })
-  logger.info("authors are ", blogAuthors)
   let max_author = blogAuthors[0]
 
   blogAuthors.map((author) => {

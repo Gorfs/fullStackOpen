@@ -5,5 +5,6 @@ content-type: application/json
     "title": "Test Blog",
     "author": "Archie beales",
     "url": "http://someurl.com",
-    "likes" : 0
+    "likes" : 0,
+    "user": "62c6a5f38e4ba2688706cc6a"
 }
