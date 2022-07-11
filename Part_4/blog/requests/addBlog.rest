@@ -1,10 +1,11 @@
 POST http://localhost:3003/api/blogs/ HTTP/1.1
 content-type: application/json
+Authorization: Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYyY2M5ODZjMjU1OGFjMWYyYmNlOThjNiIsImlhdCI6MTY1NzU3NTc1OX0.DtmgqU9DGpkOuR6_BjllfrN4VxWsO2zZbtgIksWBwRI
 
 {
     "title": "Test Blog",
     "author": "Archie beales",
     "url": "http://someurl.com",
     "likes" : 0,
-    "user": "62c6a5f38e4ba2688706cc6a"
+    "user": "62cc805fe4c32345618404a9"
 }

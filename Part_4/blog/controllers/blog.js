@@ -5,6 +5,7 @@ const Blog = require("../models/blog")
 const User = require("../models/user")
 const logger = require("../utils/logger")
 const jwt = require("jsonwebtoken")
+const middleware = require("../utils/middleware")
 
 blogsRouter.get("/", async (request, response, next) => {
   logger.info("ROUTER | person has request /")
@@ -18,7 +19,6 @@ blogsRouter.get("/", async (request, response, next) => {
 })
 
 blogsRouter.post("/", async (request, response, next) => {
-  console.log("BODY IS ", request.token)
   try {
     const body = request.body
 
@@ -28,7 +28,8 @@ blogsRouter.post("/", async (request, response, next) => {
         error: "token missing of invalid",
       })
     }
-    const user = await User.findOne({ username: decodedToken.username })
+    const user = request.user
+    console.log("GOT USER FROM REQUEST , ", user)
 
     if (!user) {
       response.status(400).json({
@@ -39,7 +40,7 @@ blogsRouter.post("/", async (request, response, next) => {
 
     const blog = new Blog({
       title: body.title,
-      author: body.author,
+      author: user.username,
       url: body.url,
       likes: body.likes || 0,
       user: body.user,
@@ -56,24 +57,40 @@ blogsRouter.post("/", async (request, response, next) => {
   }
 })
 
-blogsRouter.delete("/:id", async (request, response, next) => {
-  const requestId = request.params.id
-  try {
-    const blogsUserId = await Blog.findById(requestId)
-    console.log(blogsUserId)
-    let user = await User.findById(blogsUserId.user)
-    console.log(user)
-
-    user = user.blogs.filter((blog) => blog.id === requestId)
-
-    await Blog.findByIdAndDelete(requestId)
-    await User.findByIdAndUpdate(blogsUserId, { blogs: user })
-
-    response.status(204).end()
-  } catch (error) {
-    next(error)
+blogsRouter.delete(
+  "/:id",
+  middleware.userExtractor,
+  async (request, response, next) => {
+    const requestId = request.params.id
+    try {
+      const decodedToken = await jwt.verify(request.token, config.SECRET)
+      if (!decodedToken) {
+        response.status(401).json({
+          error: "Invalid or expired token",
+        })
+      }
+      const user = request.user
+      if (!user) {
+        response.status(401).json({
+          error: "user not found",
+        })
+      }
+      const correctUser = user.blogs.Contains(requestId) ? true : false
+      if (correctUser === false) {
+        response.status(401).json({ error: "User not correct" })
+      }
+      const blogs = user.blogs.filter((blog) => blog.id === requestId)
+      await User.findByIdAndUpdate(user.id, { blogs: blogs })
+      await Blog.findByIdAndDelete(requestId)
+      response.status(204).json({
+        status: "deleted succesfully",
+      })
+    } catch (error) {
+      console.log(error.name)
+      next(error)
+    }
   }
-})
+)
 
 blogsRouter.put("/:id", async (request, response, next) => {
   const updateObject = request.body

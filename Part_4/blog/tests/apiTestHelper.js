@@ -33,21 +33,6 @@ const initialUsers = [
     name: "Archie Beales",
     password: "Gorfgorf1",
   },
-  {
-    username: "beatles without the T",
-    name: "max beales",
-    password: "Gorfgorf1",
-  },
-  {
-    username: "roverman",
-    name: "adam beales",
-    password: "Gorfgorf1",
-  },
-  {
-    username: "aaane",
-    name: "thomas francois",
-    password: "bidonville",
-  },
 ]
 
 const blogsInDb = async () => {

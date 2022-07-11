@@ -15,7 +15,6 @@ beforeEach(async () => {
   await Blog.deleteMany({})
   // need to make it so the blogs are given ids in the future
 
-  let tempArr = []
   for (let j = 0; j < helper.initialUsers.length; j++) {
     newUser = {
       username: helper.initialUsers[j].username,
@@ -26,15 +25,18 @@ beforeEach(async () => {
   }
 
   const users = await User.find({})
+  const user = users[0]
   for (let i = 0; i < helper.initialBlogs.length; i++) {
-    newObject = {
+    const token = jwt.sign(user.toJSON(), config.SECRET)
+    newObject = new Blog({
       title: helper.initialBlogs[i].title,
-      user: users[0].id,
+      user: users[0]._id,
       url: helper.initialBlogs[i].url,
       likes: helper.initialBlogs[i].likes,
-    }
-
-    await api.post("/api/blogs").send(newObject) //.set({ Authorization: token })
+    })
+    newObject.save()
+    const blogs = user.blogs
+    User.findByIdAndUpdate(user._id, { blogs: blogs.concat(newObject) })
   }
 })
 
@@ -57,16 +59,19 @@ describe("basic check of JSON return format and ID check", () => {
 })
 
 describe("adding blogs", () => {
-  beforeAll(async () => {
-    const user = { username: "root", password: "Gorfgorf1" }
-    return jwt.sign(user, config.SECRET)
-  })
-
   test("Can add a blog with correct details", async () => {
+    const user = await User.findOne({ username: "root" })
+    const token = jwt.sign(user.toJSON(), config.SECRET)
     const newBlog = {
       title: "someblog",
       url: "someurl",
+      user: user._id,
       likes: 0,
     }
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(201)
   })
 })

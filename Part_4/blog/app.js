@@ -14,6 +14,7 @@ const mongoose = require("mongoose")
 logger.info(`connecting to ${config.mongoUrl}`)
 app.use(express.json())
 app.use(middleware.tokenExtractor)
+
 mongoose
   .connect(config.mongoUrl)
   .then(() => {
@@ -23,7 +24,7 @@ mongoose
     logger.error(err)
   })
 
-app.use("/api/blogs", blogsRouter)
+app.use("/api/blogs", middleware.userExtractor, blogsRouter)
 app.use("/api/users", usersRouter)
 app.use("/api/login", loginRouter)
 
