@@ -12,12 +12,12 @@ loginRouter.post("/", async (request, response, next) => {
     const user = await User.findOne({ username })
 
     const passwordCorrect =
-      user === null ? false : bcrypt.compare(password, user.passwordHash)
-
+      user === null ? false : await bcrypt.compare(password, user.passwordHash)
     if (!(user && passwordCorrect)) {
       response.status(401).json({
         error: "password or username invalid",
       })
+      return null
     }
 
     const userForToken = {
@@ -26,6 +26,11 @@ loginRouter.post("/", async (request, response, next) => {
     }
 
     const token = jwt.sign(userForToken, config.SECRET)
+    console.log("user has been logged in", {
+      token,
+      username: user.username,
+      name: user.name,
+    })
     response
       .status(200)
       .send({ token, username: user.username, name: user.name })

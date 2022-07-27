@@ -38,20 +38,20 @@ blogsRouter.post("/", async (request, response, next) => {
       return null
     }
 
-    const blog = new Blog({
+    const newblog = new Blog({
       title: body.title,
       author: user.username,
       url: body.url,
       likes: body.likes || 0,
-      user: body.user,
+      user: user,
     })
 
-    const savedNote = await blog.save()
+    const savedBlog = await newblog.save()
 
-    user.blogs = user.blogs.concat(savedNote._id)
+    user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
-    response.status(201).json(savedNote)
+    response.status(201).json(savedBlog)
   } catch (exception) {
     next(exception)
   }
