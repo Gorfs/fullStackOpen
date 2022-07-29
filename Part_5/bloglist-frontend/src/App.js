@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import Toggleable from "./components/Toggleable"
 import Blog from "./components/Blog"
 import Login from "./components/Login"
 import BlogForm from "./components/BlogForm"
@@ -8,6 +9,8 @@ import loginService from "./services/login"
 
 const App = () => {
   //setting up the states for the site
+  const blogFormRef = useRef()
+  const blogRef = useRef()
   const [notification, setNotification] = useState({
     message: null,
     color: "green",
@@ -18,6 +21,17 @@ const App = () => {
   const [password, setPassword] = useState("")
   const [blogTitle, setBlogTitle] = useState("")
   const [blogUrl, setBlogUrl] = useState("")
+
+  //making the hook that will update all the blogs
+  const updateAll = () => {
+    blogService.getAll().then((blogs) =>
+      setBlogs(
+        blogs.sort((a, b) => {
+          return b.likes - a.likes
+        })
+      )
+    )
+  }
 
   //making the handeler functions for the login
   const handleUsernameChange = (event) => {
@@ -53,13 +67,7 @@ const App = () => {
     setTimeout(() => setNotification({ message: null, color: "green" }), 4000)
   }
 
-  //making the handeler functions for the making of a new blog
-  const handleBlogTitle = (event) => {
-    setBlogTitle(event.target.value)
-  }
-  const handleBlogUrl = (event) => {
-    setBlogUrl(event.target.value)
-  }
+  //making the function that deals with a blog being added
   const handleBlogSubmit = async (event) => {
     //should be only called if a user is logged in already
     event.preventDefault()
@@ -75,13 +83,27 @@ const App = () => {
       setTimeout(() => setNotification({ message: null, color: "green" }), 4000)
       setBlogTitle("")
       setBlogUrl("")
+      blogFormRef.current.toggleVisible()
     } catch (exception) {
       console.log(exception)
     }
   }
+  const handleBlogLike = (blog) => {
+    //making a new blog object to be the updated blog
+    const updatedBlog = {
+      user: blog.user.id,
+      url: blog.url,
+      likes: blog.likes + 1,
+      id: blog.id,
+      title: blog.title,
+    }
+    console.log(updatedBlog)
+    blogService.updateBlog(updatedBlog) //sending the blog to the blogservice
+    updateAll() // updates all the blogs to be rerendered
+  }
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    updateAll()
   }, [])
 
   //making the effect hook to check to see if the user already has a token for the site
@@ -115,15 +137,22 @@ const App = () => {
               <button onClick={handleLogout}>logout</button>
             </p>
           </div>
-          <BlogForm
-            Title={blogTitle}
-            Url={blogUrl}
-            handleUrl={handleBlogUrl}
-            handleTitle={handleBlogTitle}
-            handleSubmit={handleBlogSubmit}
-          />
+          <Toggleable
+            showMessage="Add Blog"
+            cancelMessage="cancel"
+            ref={blogFormRef}
+          >
+            <BlogForm handleSubmit={handleBlogSubmit} />
+          </Toggleable>
+
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog
+              ref={blogRef}
+              key={blog.id}
+              blog={blog}
+              handleBlogLike={handleBlogLike}
+              userId={user.id}
+            />
           ))}
         </div>
       )}

@@ -75,3 +75,21 @@ describe("adding blogs", () => {
       .expect(201)
   })
 })
+
+describe("test to log in", () => {
+  test("log in with correct information goes through", async () => {
+    console.log("THIS MESSAGE IS COMING FROM THE TEST")
+    const user = {
+      username: "root",
+      password: "Gorfgorf1",
+    }
+    await api.post("/api/login").send(user).expect(200)
+  })
+  test("log in with incorrect information does not go through", async () => {
+    const fakeUser = {
+      username: "root",
+      password: "not correct password",
+    }
+    await api.post("/api/login").send(fakeUser).expect(401)
+  })
+})
