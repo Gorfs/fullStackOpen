@@ -44,7 +44,6 @@ const userExtractor = async (request, response, next) => {
     try {
       const decodedToken = jwt.verify(token, config.SECRET)
       const user = await User.findOne({ username: decodedToken.username })
-      console.log("ADDED A USER TO REQUEST", user)
       request.user = user
     } catch (exception) {
       next(exception)

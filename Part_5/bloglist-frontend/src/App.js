@@ -9,8 +9,9 @@ import loginService from "./services/login"
 
 const App = () => {
   //setting up the states for the site
-  const blogFormRef = useRef()
+  const toggleRef = useRef()
   const blogRef = useRef()
+  const blogFormRef = useRef()
   const [notification, setNotification] = useState({
     message: null,
     color: "green",
@@ -48,6 +49,7 @@ const App = () => {
       setUsername("")
       setPassword("")
       console.log(user)
+      blogService.setToken(user.token)
       window.localStorage.setItem("loggedInUser", JSON.stringify(user))
       await setNotification({
         message: "user has been logged in",
@@ -72,23 +74,24 @@ const App = () => {
     //should be only called if a user is logged in already
     event.preventDefault()
     try {
-      const blog = { title: blogTitle, url: blogUrl, user: user.token }
+      const res = blogFormRef.current
+      const blog = { title: res.title, url: res.url, user: user.token }
+      setBlogTitle("")
+      setBlogUrl("")
+      toggleRef.current.toggleVisible()
       await blogService.setToken(user.token)
-      await blogService.sendBlog(blog)
-      setBlogs(blogs.concat(blog))
+      const ress = await blogService.sendBlog(blog)
+      setBlogs(blogs.concat(ress))
       setNotification({
-        message: `${blog.title} has been added`,
+        message: `${res.title} has been added`,
         color: "green",
       })
       setTimeout(() => setNotification({ message: null, color: "green" }), 4000)
-      setBlogTitle("")
-      setBlogUrl("")
-      blogFormRef.current.toggleVisible()
     } catch (exception) {
       console.log(exception)
     }
   }
-  const handleBlogLike = (blog) => {
+  const handleBlogLike = async (blog) => {
     //making a new blog object to be the updated blog
     const updatedBlog = {
       user: blog.user.id,
@@ -98,8 +101,17 @@ const App = () => {
       title: blog.title,
     }
     console.log(updatedBlog)
-    blogService.updateBlog(updatedBlog) //sending the blog to the blogservice
+    await blogService.updateBlog(updatedBlog) //sending the blog to the blogservice
     updateAll() // updates all the blogs to be rerendered
+  }
+  const handleBlogDelete = async (blogId) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) {
+      return null
+    }
+    console.log(`attempting deletion of blog ${blogId}`)
+    await blogService.setToken(user.token)
+    const response = await blogService.deleteBlog(blogId)
+    setBlogs(blogs.filter((blog) => blog.id !== blogId))
   }
 
   useEffect(() => {
@@ -140,9 +152,9 @@ const App = () => {
           <Toggleable
             showMessage="Add Blog"
             cancelMessage="cancel"
-            ref={blogFormRef}
+            ref={toggleRef}
           >
-            <BlogForm handleSubmit={handleBlogSubmit} />
+            <BlogForm handleSubmit={handleBlogSubmit} ref={blogFormRef} />
           </Toggleable>
 
           {blogs.map((blog) => (
@@ -152,6 +164,7 @@ const App = () => {
               blog={blog}
               handleBlogLike={handleBlogLike}
               userId={user.id}
+              handleBlogDelete={handleBlogDelete}
             />
           ))}
         </div>

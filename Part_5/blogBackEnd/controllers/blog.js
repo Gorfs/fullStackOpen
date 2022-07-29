@@ -8,8 +8,6 @@ const jwt = require("jsonwebtoken")
 const middleware = require("../utils/middleware")
 
 blogsRouter.get("/", async (request, response, next) => {
-  logger.info("ROUTER | person has request /")
-  logger.info(request.body, "IS THE REQUEST BODY")
   try {
     const res = await Blog.find({}).populate("user", { username: 1, name: 1 })
     response.json(res)
@@ -75,7 +73,8 @@ blogsRouter.delete(
           error: "user not found",
         })
       }
-      const correctUser = user.blogs.Contains(requestId) ? true : false
+      const correctUser = user.blogs.includes(requestId) ? true : false
+
       if (correctUser === false) {
         response.status(401).json({ error: "User not correct" })
       }

@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useState, forwardRef, useImperativeHandle } from "react"
 
-const BlogForm = ({ handleSubmit }) => {
+const BlogForm = forwardRef(({ handleSubmit }, refs) => {
   const [Title, setTitle] = useState("")
   const [Url, setUrl] = useState("")
 
@@ -11,9 +11,15 @@ const BlogForm = ({ handleSubmit }) => {
     setUrl(event.target.value)
   }
 
+  useImperativeHandle(refs, () => {
+    return {
+      title: Title,
+      url: Url,
+    }
+  })
+
   return (
     <form onSubmit={handleSubmit}>
-      <br />
       <h2>Add a Blog</h2>
       name: <input value={Title} onChange={handleTitle} /> <br />
       url: <input value={Url} onChange={handleUrl} /> <br />
@@ -21,6 +27,6 @@ const BlogForm = ({ handleSubmit }) => {
       <br />
     </form>
   )
-}
+})
 
 export default BlogForm

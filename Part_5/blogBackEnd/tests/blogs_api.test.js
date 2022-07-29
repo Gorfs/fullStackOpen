@@ -21,6 +21,7 @@ beforeEach(async () => {
       password: helper.initialUsers[j].password,
       name: helper.initialUsers[j].name,
     }
+
     await api.post("/api/users").send(newUser)
   }
 
@@ -28,13 +29,16 @@ beforeEach(async () => {
   const user = users[0]
   for (let i = 0; i < helper.initialBlogs.length; i++) {
     const token = jwt.sign(user.toJSON(), config.SECRET)
-    newObject = new Blog({
+    newObject = {
       title: helper.initialBlogs[i].title,
       user: users[0]._id,
       url: helper.initialBlogs[i].url,
       likes: helper.initialBlogs[i].likes,
-    })
-    newObject.save()
+    }
+    await api
+      .post("/api/blogs")
+      .send(newObject)
+      .set("Authorization", `Bearer ${token}`)
     const blogs = user.blogs
     User.findByIdAndUpdate(user._id, { blogs: blogs.concat(newObject) })
   }
